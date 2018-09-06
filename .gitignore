@@ -27,3 +27,6 @@
 
 bin/
 gradle/
+
+MEMO.md
+.vscode/
