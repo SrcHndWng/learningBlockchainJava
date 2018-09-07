@@ -10,6 +10,10 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 public class Application {
 
+    private final int difficulty = 5;
+    private final String firstHash = "0";
+    private List<Block> blockChain;
+
     public static void main(String[] args) {
         try (ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args)) {
             Application app = ctx.getBean(Application.class);
@@ -23,20 +27,14 @@ public class Application {
     private void run() throws Exception {
         System.out.println("learningBlockchainJava start...");
 
-        List<Block> blockChain = new ArrayList<Block>();
-        final String firstHash = "0";
+        blockChain = new ArrayList<Block>();
 
-        Block block1 = new Block("First Block", firstHash);
-        blockChain.add(block1);
-        System.out.println(String.format("isBlockChainValid = %b", isBlockChainValid(blockChain)));
+        addBlock(new Block("First Block", firstHash));
+        addBlock(new Block("Second Block", blockChain.get(blockChain.size() - 1).currentHash));
+        addBlock(new Block("Third Block", blockChain.get(blockChain.size() - 1).currentHash));
 
-        Block block2 = new Block("Second Block", block1.currentHash);
-        blockChain.add(block2);
-        System.out.println(String.format("isBlockChainValid = %b", isBlockChainValid(blockChain)));
-
-        Block block3 = new Block("Third Block", block2.currentHash);
-        blockChain.add(block3);
-        System.out.println(String.format("isBlockChainValid = %b", isBlockChainValid(blockChain)));
+        // Test with thief block.
+        addBlock(new Block("Thief Block", blockChain.get(blockChain.size() - 2).currentHash));
 
         String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockChain);
         System.out.println(blockchainJson);
@@ -44,7 +42,7 @@ public class Application {
         System.out.println("learningBlockchainJava end...");
     }
 
-    private static boolean isBlockChainValid(List<Block> blockChain) {
+    private boolean isBlockChainValid(List<Block> blockChain) {
         if (blockChain.size() < 1) return true;
 
         for (int i = 1; i <= blockChain.size() - 1; i++) {
@@ -56,5 +54,19 @@ public class Application {
         }
 
         return true;
+    }
+
+    public void addBlock(Block b) {
+        b.mineBlock(difficulty);
+        blockChain.add(b);
+        if (!isBlockChainValid(blockChain)) {
+            System.out.println(
+                    "Block :"
+                            + b.currentHash
+                            + " - "
+                            + b.previousHash
+                            + " is not valid, removing it");
+            blockChain.remove(b);
+        }
     }
 }
