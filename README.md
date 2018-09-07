@@ -2,6 +2,6 @@
 
 ## About This
 
-https://medium.com/programmers-blockchain/6eeed3cb03fa
+http://www.java-redefined.com/2017/12/java-blockchain-tutorial.html
 
 こちらを学習のために写経したもの。
