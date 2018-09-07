@@ -27,5 +27,6 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	compile('com.google.code.gson:gson:2.6.2')
+	compile('org.bouncycastle:bcprov-jdk15on:1.60')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
