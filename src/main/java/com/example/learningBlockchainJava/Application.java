@@ -2,17 +2,12 @@ package com.example.learningBlockchainJava;
 
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
-import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class Application {
-
-    private final int difficulty = 5;
-    private final String firstHash = "0";
-    private List<Block> blockChain;
 
     public static void main(String[] args) {
         try (ConfigurableApplicationContext ctx = SpringApplication.run(Application.class, args)) {
@@ -27,46 +22,54 @@ public class Application {
     private void run() throws Exception {
         System.out.println("learningBlockchainJava start...");
 
-        blockChain = new ArrayList<Block>();
+        ArrayList<Block> blockchain = new ArrayList<Block>();
+        final String firstHash = "0";
+        final int difficulty = 5;
 
-        addBlock(new Block("First Block", firstHash));
-        addBlock(new Block("Second Block", blockChain.get(blockChain.size() - 1).currentHash));
-        addBlock(new Block("Third Block", blockChain.get(blockChain.size() - 1).currentHash));
+        blockchain.add(new Block("Hi im the first block", firstHash));
+        System.out.println("Trying to Mine block 1... ");
+        blockchain.get(0).mineBlock(difficulty);
 
-        // Test with thief block.
-        addBlock(new Block("Thief Block", blockChain.get(blockChain.size() - 2).currentHash));
+        blockchain.add(new Block("Yo im the second block", getPreviousHash(blockchain)));
+        System.out.println("Trying to Mine block 2... ");
+        blockchain.get(1).mineBlock(difficulty);
 
-        String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockChain);
+        blockchain.add(new Block("Hey im the third block", getPreviousHash(blockchain)));
+        System.out.println("Trying to Mine block 3... ");
+        blockchain.get(2).mineBlock(difficulty);
+
+        System.out.println("\nBlockchain is Valid: " + isChainValid(blockchain));
+
+        String blockchainJson = new GsonBuilder().setPrettyPrinting().create().toJson(blockchain);
+        System.out.println("\nThe block chain: ");
         System.out.println(blockchainJson);
 
         System.out.println("learningBlockchainJava end...");
     }
 
-    private boolean isBlockChainValid(List<Block> blockChain) {
-        if (blockChain.size() < 1) return true;
+    private String getPreviousHash(ArrayList<Block> blockchain) {
+        return blockchain.get(blockchain.size() - 1).hash;
+    }
 
-        for (int i = 1; i <= blockChain.size() - 1; i++) {
-            Block currentBlock = blockChain.get(i - 1);
-            Block nextBlock = blockChain.get(i);
-            if (!(nextBlock.previousHash.equals(currentBlock.currentHash))) {
+    private Boolean isChainValid(ArrayList<Block> blockchain) {
+        Block currentBlock;
+        Block previousBlock;
+
+        // loop through blockchain to check hashes:
+        for (int i = 1; i < blockchain.size(); i++) {
+            currentBlock = blockchain.get(i);
+            previousBlock = blockchain.get(i - 1);
+            // compare registered hash and calculated hash:
+            if (!currentBlock.hash.equals(currentBlock.calculateHash())) {
+                System.out.println("Current Hashes not equal");
+                return false;
+            }
+            // compare previous hash and registered previous hash
+            if (!previousBlock.hash.equals(currentBlock.previousHash)) {
+                System.out.println("Previous Hashes not equal");
                 return false;
             }
         }
-
         return true;
-    }
-
-    public void addBlock(Block b) {
-        b.mineBlock(difficulty);
-        blockChain.add(b);
-        if (!isBlockChainValid(blockChain)) {
-            System.out.println(
-                    "Block :"
-                            + b.currentHash
-                            + " - "
-                            + b.previousHash
-                            + " is not valid, removing it");
-            blockChain.remove(b);
-        }
     }
 }
