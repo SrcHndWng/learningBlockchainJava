@@ -9,11 +9,10 @@ public class Transaction {
     public PublicKey sender; // Senders address/public key.
     public PublicKey reciepient; // Recipients address/public key.
     public float value; // Contains the amount we wish to send to the recipient.
-    public byte[] signature; // This is to prevent anybody else from spending funds in our wallet.
-
     public ArrayList<TransactionInput> inputs = new ArrayList<TransactionInput>();
     public ArrayList<TransactionOutput> outputs = new ArrayList<TransactionOutput>();
 
+    private byte[] signature; // This is to prevent anybody else from spending funds in our wallet.
     private static int sequence = 0; // A rough count of how many transactions have been generated
 
     // Constructor:
@@ -38,10 +37,9 @@ public class Transaction {
         }
 
         // Checks if transaction is valid:
-        if (getInputsValue() < Application.minimumTransaction) {
+        if (getInputsValue() < Consts.minimumTransaction) {
             System.out.println("Transaction Inputs too small: " + getInputsValue());
-            System.out.println(
-                    "Please enter the amount greater than " + Application.minimumTransaction);
+            System.out.println("Please enter the amount greater than " + Consts.minimumTransaction);
             return false;
         }
 
